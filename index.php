@@ -52,33 +52,29 @@
   </div>
 </div>
 <script>
-// Kunci penyimpanan di localStorage
+// State + penyimpanan lokal
 const KEY = "junior_todos";
-// Shortcut ambil elemen by id
 const $ = (id) => document.getElementById(id);
-// Ambil semua tugas, default array kosong
 let todos = JSON.parse(localStorage.getItem(KEY) || "[]"), filter = "semua";
-// Simpan array todos ke localStorage
 const save = () => localStorage.setItem(KEY, JSON.stringify(todos));
-// Dummy awal: array 2 tugas, cuma dimasukkan sekali pas storage masih kosong
+// Data awal, cuma sekali pas storage masih kosong
 if (!todos.length && !localStorage.getItem("junior_seeded")) {
   todos = [
   { id: 1, judul: "Belajar HTML", status: "belum" }, 
   { id: 2, judul: "Kerjakan tugas UX", status: "belum" }];
   localStorage.setItem("junior_seeded", "1"); save();
 }
-// Amankan teks biar tag HTML tidak dieksekusi
+// Cegah XSS pada judul tugas
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-// Notif kecil di atas form, hilang sendiri 2 detik
+// Notif singkat, hilang sendiri 2 detik
 function flash(msg, ok = true) {
   const a = $("alert");
   a.textContent = msg;
   a.className = "mb-4 px-4 py-2.5 rounded-xl text-sm border " + (ok ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200");
   clearTimeout(flash.t); flash.t = setTimeout(() => a.classList.add("hidden"), 2000);
 }
-// Gambar ulang list sesuai filter + search, nomor pakai urutan (i+1)
+// Render list sesuai filter + search
 function render() {
-  // Tandai tombol filter yang aktif
   document.querySelectorAll("#filterGroup button").forEach(b =>
     b.className = "px-3 py-1.5 rounded-full transition " + (b.dataset.filter === filter ? "bg-white shadow-sm text-neutral-900 font-medium" : "text-neutral-500 hover:text-neutral-800"));
   const q = $("searchInput").value.trim().toLowerCase();
@@ -99,7 +95,7 @@ function render() {
       </div>
     </div>`).join("");
 }
-// Tambah tugas baru ke paling bawah
+// Tambah tugas baru
 $("todoForm").onsubmit = (e) => {
   e.preventDefault();
   const judul = $("titleInput").value.trim();
@@ -107,8 +103,7 @@ $("todoForm").onsubmit = (e) => {
   todos.push({ id: Date.now(), judul, status: "belum" });
   save(); $("titleInput").value = ""; render(); flash("Tugas ditambahkan");
 };
-// Satu handler untuk centang selesai, hapus, dan edit
-// Modal custom pengganti confirm/prompt bawaan browser (biar gak ada "localhost says")
+// Modal custom untuk hapus / edit
 let modalCb = null;
 function openModal(title, msg, showInput, def, okLabel, cb) {
   $("modalTitle").textContent = title;
@@ -128,6 +123,7 @@ $("modalOk").onclick = () => {
   closeModal(); if (cb) cb(val);
 };
 $("modalInput").onkeydown = (e) => { if (e.key === "Enter") $("modalOk").click(); if (e.key === "Escape") closeModal(); };
+// Aksi toggle selesai, hapus, dan edit
 $("todoList").onclick = (e) => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   const t = todos.find(x => x.id == el.dataset.id); if (!t) return;
@@ -140,10 +136,9 @@ $("todoList").onclick = (e) => {
     t.judul = j; save(); render(); flash("Tugas diperbarui");
   });
 };
-// Ganti filter + ketik pencarian langsung render ulang
+// Filter + search + render awal
 document.querySelectorAll("#filterGroup button").forEach(b => b.onclick = () => { filter = b.dataset.filter; render(); });
 $("searchInput").oninput = render;
-// Tampilan pertama kali
 render();
 </script>
 </body>
