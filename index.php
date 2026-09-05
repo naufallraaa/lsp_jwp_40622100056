@@ -7,33 +7,36 @@
 <title>To-Do List</title>
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-stone-100 text-stone-800 min-h-screen">
-<div class="max-w-2xl mx-auto py-8 px-4">
-  <!-- Judul atas -->
-  <header class="bg-stone-800 text-white rounded-t-lg px-6 py-5">
-    <h1 class="text-xl font-bold">To-Do List</h1>
-    <p class="text-sm text-stone-400">catatan tugas harian</p>
+<body class="bg-neutral-100 text-neutral-900 min-h-screen antialiased">
+<div class="max-w-xl mx-auto py-10 px-4">
+  <!-- Kepala halaman -->
+  <header class="mb-6">
+    <p class="text-xs font-medium uppercase tracking-widest text-neutral-400">Catatan harian</p>
+    <h1 class="text-2xl font-semibold tracking-tight">To-Do List</h1>
+    <p class="text-sm text-neutral-500 mt-1">Fokus ke yang penting, satu tugas sekali jalan.</p>
   </header>
-  <div class="bg-white border border-stone-200 border-t-0 rounded-b-lg p-5">
+  <div class="bg-white border border-neutral-200 rounded-2xl shadow-sm p-5">
     <!-- Notif singkat (sukses / gagal) -->
-    <div id="alert" class="hidden mb-4 px-4 py-2 rounded text-sm"></div>
+    <div id="alert" class="hidden mb-4 px-4 py-2.5 rounded-xl text-sm border"></div>
     <!-- Form tambah tugas -->
-    <form id="todoForm" class="flex gap-2 mb-4">
-      <input id="titleInput" type="text" placeholder="Tugas baru..." class="flex-1 border border-stone-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-stone-500">
-      <button class="bg-stone-800 hover:bg-stone-700 text-white text-sm px-4 py-2 rounded">Tambah</button>
+    <form id="todoForm" class="flex gap-2 mb-5">
+      <input id="titleInput" type="text" placeholder="Tugas baru..." class="flex-1 border border-neutral-200 bg-neutral-50 rounded-xl px-4 py-2.5 text-sm placeholder:text-neutral-400 focus:outline-none focus:bg-white focus:border-neutral-400 transition">
+      <button class="bg-neutral-900 hover:bg-neutral-700 active:scale-95 transition text-white text-sm font-medium px-5 py-2.5 rounded-xl">Tambah</button>
     </form>
     <!-- Filter status + pencarian -->
-    <div class="flex gap-1 mb-4 text-sm" id="filterGroup">
-      <button data-filter="semua" class="px-3 py-1 rounded-full">Semua</button>
-      <button data-filter="belum" class="px-3 py-1 rounded-full">Belum</button>
-      <button data-filter="selesai" class="px-3 py-1 rounded-full">Selesai</button>
-      <input id="searchInput" type="text" placeholder="cari..." class="ml-auto border border-stone-300 rounded px-3 py-1 text-sm w-32 focus:outline-none focus:border-stone-500">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="flex gap-1 text-xs bg-neutral-100 p-1 rounded-full" id="filterGroup">
+        <button data-filter="semua" class="px-3 py-1.5 rounded-full">Semua</button>
+        <button data-filter="belum" class="px-3 py-1.5 rounded-full">Belum</button>
+        <button data-filter="selesai" class="px-3 py-1.5 rounded-full">Selesai</button>
+      </div>
+      <input id="searchInput" type="text" placeholder="Cari..." class="ml-auto border border-neutral-200 rounded-full px-3.5 py-1.5 text-xs w-28 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 transition">
     </div>
     <!-- Daftar tugas diisi lewat JS -->
     <div id="todoList" class="flex flex-col gap-2"></div>
     <!-- Tampil kalau list kosong -->
-    <p id="emptyMsg" class="hidden text-center text-stone-400 text-sm py-8">belum ada tugas.</p>
-    <footer class="text-center text-xs text-stone-400 mt-6">tersimpan otomatis di browser</footer>
+    <p id="emptyMsg" class="hidden text-center text-neutral-400 text-sm py-8">Belum ada tugas.</p>
+    <footer class="text-center text-xs text-neutral-400 mt-6 pt-4 border-t border-neutral-100">Tersimpan otomatis di browser</footer>
   </div>
 </div>
 <script>
@@ -48,7 +51,7 @@ const save = () => localStorage.setItem(KEY, JSON.stringify(todos));
 // Dummy awal: array 2 tugas, cuma dimasukkan sekali pas storage masih kosong
 if (!todos.length && !localStorage.getItem("junior_seeded")) {
   todos = [
-  { id: 1, judul: "Belajar HTML/CSS", status: "belum" }, 
+  { id: 1, judul: "Belajar HTML", status: "belum" }, 
   { id: 2, judul: "Kerjakan tugas UX", status: "belum" }];
   localStorage.setItem("junior_seeded", "1"); save();
 }
@@ -58,38 +61,38 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&
 function flash(msg, ok = true) {
   const a = $("alert");
   a.textContent = msg;
-  a.className = "mb-4 px-4 py-2 rounded text-sm " + (ok ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800");
+  a.className = "mb-4 px-4 py-2.5 rounded-xl text-sm border " + (ok ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200");
   clearTimeout(flash.t); flash.t = setTimeout(() => a.classList.add("hidden"), 2000);
 }
 // Gambar ulang list sesuai filter + search, nomor pakai urutan (i+1)
 function render() {
   // Tandai tombol filter yang aktif
   document.querySelectorAll("#filterGroup button").forEach(b =>
-    b.className = "px-3 py-1 rounded-full " + (b.dataset.filter === filter ? "bg-stone-800 text-white" : "bg-stone-200 text-stone-600"));
+    b.className = "px-3 py-1.5 rounded-full transition " + (b.dataset.filter === filter ? "bg-white shadow-sm text-neutral-900 font-medium" : "text-neutral-500 hover:text-neutral-800"));
   const q = $("searchInput").value.trim().toLowerCase();
   const rows = todos.filter(t => (filter === "semua" || t.status === filter) && t.judul.toLowerCase().includes(q));
   $("emptyMsg").classList.toggle("hidden", rows.length > 0);
   $("todoList").innerHTML = rows.map((t, i) => `
-    <div class="border border-stone-200 rounded px-3 py-2.5 ${t.status === "selesai" ? "bg-stone-50" : "bg-white"}">
-      <label class="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" data-act="toggle" data-id="${t.id}" ${t.status === "selesai" ? "checked" : ""} class="w-4 h-4 accent-stone-800">
-        <span class="text-sm font-bold ${t.status === "selesai" ? "line-through text-stone-400" : ""}">${esc(t.judul)}</span>
+    <div class="border border-neutral-200 rounded-xl px-4 py-3 transition hover:border-neutral-300 hover:shadow-sm ${t.status === "selesai" ? "bg-neutral-50" : "bg-white"}">
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input type="checkbox" data-act="toggle" data-id="${t.id}" ${t.status === "selesai" ? "checked" : ""} class="w-4 h-4 rounded accent-neutral-900 shrink-0">
+        <span class="text-sm ${t.status === "selesai" ? "line-through text-neutral-400" : "font-medium text-neutral-800"}">${esc(t.judul)}</span>
       </label>
-      <div class="flex justify-between items-center mt-1.5 ml-6">
-        <span class="text-[11px] text-stone-400">#${i + 1} · ${t.status}</span>
-        <span class="flex gap-1.5">
-          <button data-act="edit" data-id="${t.id}" class="bg-amber-500 text-white text-xs px-2 py-1 rounded">Edit</button>
-          <button data-act="del" data-id="${t.id}" class="bg-red-500 text-white text-xs px-2 py-1 rounded">Hapus</button>
+      <div class="flex justify-between items-center mt-2 ml-7">
+        <span class="flex items-center gap-1.5 text-[11px] text-neutral-400"><span class="w-1.5 h-1.5 rounded-full ${t.status === "selesai" ? "bg-emerald-500" : "bg-amber-400"}"></span>#${i + 1} &middot; ${t.status}</span>
+        <span class="flex gap-1">
+          <button data-act="edit" data-id="${t.id}" class="text-xs px-2.5 py-1 rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 transition">Edit</button>
+          <button data-act="del" data-id="${t.id}" class="text-xs px-2.5 py-1 rounded-lg text-neutral-400 hover:bg-red-50 hover:text-red-600 transition">Hapus</button>
         </span>
       </div>
     </div>`).join("");
 }
-// Tambah tugas baru ke paling atas
+// Tambah tugas baru ke paling bawah
 $("todoForm").onsubmit = (e) => {
   e.preventDefault();
   const judul = $("titleInput").value.trim();
   if (!judul) return flash("Judul gak boleh kosong", false);
-  todos.unshift({ id: Date.now(), judul, status: "belum" });
+  todos.push({ id: Date.now(), judul, status: "belum" });
   save(); $("titleInput").value = ""; render(); flash("Tugas ditambahkan");
 };
 // Satu handler untuk centang selesai, hapus, dan edit
