@@ -34,6 +34,18 @@
     </div>
     <!-- Daftar tugas diisi lewat JS -->
     <div id="todoList" class="flex flex-col gap-2"></div>
+    <!-- Modal konfirmasi / edit (pengganti confirm & prompt bawaan browser) -->
+    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div class="bg-white rounded-2xl shadow-lg w-full max-w-sm p-5">
+        <h2 id="modalTitle" class="text-sm font-semibold"></h2>
+        <p id="modalMsg" class="text-sm text-neutral-500 mt-1"></p>
+        <input id="modalInput" type="text" class="hidden mt-3 w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-neutral-400">
+        <div class="flex justify-end gap-2 mt-4">
+          <button id="modalCancel" class="text-sm px-4 py-2 rounded-xl text-neutral-500 hover:bg-neutral-100 transition">Batal</button>
+          <button id="modalOk" class="text-sm font-medium px-4 py-2 rounded-xl bg-neutral-900 text-white hover:bg-neutral-700 transition">OK</button>
+        </div>
+      </div>
+    </div>
     <!-- Tampil kalau list kosong -->
     <p id="emptyMsg" class="hidden text-center text-neutral-400 text-sm py-8">Belum ada tugas.</p>
     <footer class="text-center text-xs text-neutral-400 mt-6 pt-4 border-t border-neutral-100">Tersimpan otomatis di browser</footer>
@@ -96,13 +108,37 @@ $("todoForm").onsubmit = (e) => {
   save(); $("titleInput").value = ""; render(); flash("Tugas ditambahkan");
 };
 // Satu handler untuk centang selesai, hapus, dan edit
+// Modal custom pengganti confirm/prompt bawaan browser (biar gak ada "localhost says")
+let modalCb = null;
+function openModal(title, msg, showInput, def, okLabel, cb) {
+  $("modalTitle").textContent = title;
+  $("modalMsg").textContent = msg || "";
+  const inp = $("modalInput");
+  inp.classList.toggle("hidden", !showInput);
+  if (showInput) { inp.value = def || ""; setTimeout(() => inp.focus(), 50); }
+  $("modalOk").textContent = okLabel || "OK";
+  $("modal").classList.remove("hidden");
+  modalCb = cb;
+}
+function closeModal() { $("modal").classList.add("hidden"); modalCb = null; }
+$("modalCancel").onclick = closeModal;
+$("modal").onclick = (e) => { if (e.target.id === "modal") closeModal(); };
+$("modalOk").onclick = () => {
+  const cb = modalCb, val = $("modalInput").value;
+  closeModal(); if (cb) cb(val);
+};
+$("modalInput").onkeydown = (e) => { if (e.key === "Enter") $("modalOk").click(); if (e.key === "Escape") closeModal(); };
 $("todoList").onclick = (e) => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   const t = todos.find(x => x.id == el.dataset.id); if (!t) return;
-  if (el.dataset.act === "toggle") t.status = t.status === "selesai" ? "belum" : "selesai";
-  if (el.dataset.act === "del") { if (!confirm(`Hapus "${t.judul}"?`)) return; todos = todos.filter(x => x.id != t.id); flash("Tugas dihapus"); }
-  if (el.dataset.act === "edit") { const j = prompt("Edit tugas:", t.judul)?.trim(); if (j === undefined) return; if (!j) return flash("Judul gak boleh kosong", false); t.judul = j; flash("Tugas diperbarui"); }
-  save(); render();
+  if (el.dataset.act === "toggle") { t.status = t.status === "selesai" ? "belum" : "selesai"; save(); render(); }
+  if (el.dataset.act === "del") openModal("Hapus tugas?", `"${t.judul}" akan dihapus permanen.`, false, "", "Hapus", () => {
+    todos = todos.filter(x => x.id != t.id); save(); render(); flash("Tugas dihapus");
+  });
+  if (el.dataset.act === "edit") openModal("Edit tugas", "", true, t.judul, "Simpan", (val) => {
+    const j = (val || "").trim(); if (!j) return flash("Judul gak boleh kosong", false);
+    t.judul = j; save(); render(); flash("Tugas diperbarui");
+  });
 };
 // Ganti filter + ketik pencarian langsung render ulang
 document.querySelectorAll("#filterGroup button").forEach(b => b.onclick = () => { filter = b.dataset.filter; render(); });
