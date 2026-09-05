@@ -91,7 +91,7 @@ function render() {
 
   const rows = visible();
   emptyMsg.classList.toggle("hidden", rows.length > 0);
-  list.innerHTML = rows.map(t => {
+  list.innerHTML = rows.map((t, i) => {
     if (t.id === editingId) {
       return `
     <div class="border border-amber-400 rounded-md px-3.5 py-3 bg-amber-50">
@@ -111,7 +111,7 @@ function render() {
       </label>
       <div class="flex justify-between items-center mt-2 ml-6">
         <span class="flex gap-1.5 items-center">
-          <span class="text-[11px] font-mono text-stone-400">#${t.id}</span>
+          <span class="text-[11px] font-mono text-stone-400">#${i + 1}</span>
           <span class="text-[11px] px-2 py-0.5 rounded-full ${t.status === "selesai" ? "bg-emerald-200 text-emerald-900" : "bg-amber-200 text-amber-900"}">${t.status}</span>
         </span>
         <span class="flex gap-1.5">
